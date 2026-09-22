@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  serverExternalPackages: ["unpdf", "mammoth", "bcryptjs", "@prisma/client", "pdf-lib"],
 };
 
 export default nextConfig;

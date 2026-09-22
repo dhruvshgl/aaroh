@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Aaroh
 
-## Getting Started
+AI career consultant. Next.js, Tailwind, shadcn/ui, PostgreSQL, and server-side OpenAI.
 
-First, run the development server:
+## Local setup
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. Copy `.env.example` to `.env` and set `AUTH_SECRET`.
+2. Start Postgres: `docker compose up -d`
+3. Apply the schema: `npx prisma migrate dev`
+4. Optional demo profile: `npx prisma db seed`
+   - Email: `demo@aaroh.local`
+   - Password: `AarohDemo123!`
+5. `npm run dev`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`DATABASE_URL` points at Postgres.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`AUTH_SECRET` and `AUTH_URL` configure Auth.js. Email and password always work. Google, LinkedIn, and Apple buttons appear only when their `AUTH_*_ID` and `AUTH_*_SECRET` values are set.
 
-## Learn More
+`OPENAI_API_KEY` stays on the server. Do not prefix it with `NEXT_PUBLIC_`.
 
-To learn more about Next.js, take a look at the following resources:
+`AI_MODEL` defaults to `gpt-5-mini` for career analysis. `AI_MODEL_CHAT` defaults to `gpt-5-nano` for the consultant. Analysis uses low reasoning effort. Chat uses minimal reasoning effort.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`ANALYSIS_DAILY_LIMIT` and `CHAT_HOURLY_LIMIT` cap spend per user.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Resumes are stored on local disk under `storage/`.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The alignment percentage is calculated in application code from skill depth, experience, goal clarity, evidence, and gap severity. The model explains it. It does not invent the number.
