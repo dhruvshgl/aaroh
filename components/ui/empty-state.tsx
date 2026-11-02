@@ -7,13 +7,17 @@ export function EmptyState({
   description,
   action,
   className,
+  headingLevel = "h2",
 }: {
   icon: LucideIcon;
   title: string;
   description: string;
   action?: React.ReactNode;
   className?: string;
+  /** Use "h1" when the empty state is the whole page. */
+  headingLevel?: "h1" | "h2";
 }) {
+  const Heading = headingLevel;
   return (
     <div className={cn("surface flex animate-fade-up flex-col items-center px-6 py-12 text-center", className)}>
       <span className="relative grid size-16 place-items-center">
@@ -23,7 +27,7 @@ export function EmptyState({
         </svg>
         <Icon className="relative size-6 text-primary" aria-hidden="true" />
       </span>
-      <h2 className="mt-4 text-h2">{title}</h2>
+      <Heading className="mt-4 text-h2">{title}</Heading>
       <p className="mt-2 max-w-sm text-small text-muted-foreground">{description}</p>
       {action ? <div className="mt-6">{action}</div> : null}
     </div>

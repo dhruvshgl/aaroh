@@ -23,6 +23,7 @@ export default async function RoadmapPage({ searchParams }: { searchParams: Prom
     return (
       <div className="mx-auto max-w-3xl">
         <EmptyState
+          headingLevel="h1"
           icon={Map}
           title="Your roadmap isn't ready yet"
           description="After your analysis, Aaroh builds a phased plan aimed at your real gaps, with projects that prove each step."

@@ -47,6 +47,7 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
     return (
       <div className="mx-auto max-w-3xl">
         <EmptyState
+          headingLevel="h1"
           icon={Sparkles}
           title={running ? "Your report is being written" : "No report yet"}
           description={
@@ -102,7 +103,7 @@ export default async function ReportPage({ searchParams }: { searchParams: Promi
       }))}
       runsLeft={quota.left}
       runsLimit={quota.limit}
-      generatedAt={report.createdAt.toISOString()}
+      generatedAt={report.createdAt.toLocaleDateString("en", { day: "numeric", month: "long", year: "numeric" })}
     />
   );
 }

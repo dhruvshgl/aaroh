@@ -265,10 +265,16 @@ export default async function DashboardHome({
       )}
 
       <section aria-labelledby="recent" className="mt-8">
-        <h2 id="recent" className="text-h2">
-          Continue where you left off
-        </h2>
-        <ul className="mt-4 grid gap-3 md:grid-cols-3">
+        {conversation || lastProject || report ? (
+          <h2 id="recent" className="mb-4 text-h2">
+            Continue where you left off
+          </h2>
+        ) : (
+          <h2 id="recent" className="sr-only">
+            Get support
+          </h2>
+        )}
+        <ul className="grid gap-3 empty:hidden md:grid-cols-3">
           {conversation ? (
             <RecentItem
               href={`/dashboard/chat/${conversation.id}`}

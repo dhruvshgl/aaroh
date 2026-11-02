@@ -170,7 +170,7 @@ export function ReportView({
           <p className="text-caption font-medium tracking-[0.16em] text-primary uppercase">Career report</p>
           <h1 className="mt-1.5 text-h1 sm:text-[2.5rem]">Where you stand today</h1>
           <p className="mt-2 text-small text-muted-foreground">
-            Generated {new Date(generatedAt).toLocaleDateString("en", { day: "numeric", month: "long", year: "numeric" })}
+            Generated {generatedAt}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
