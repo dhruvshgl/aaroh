@@ -5,6 +5,7 @@ import {
   EXPERIENCE_BANDS,
   TIMEFRAMES,
 } from "@/lib/constants";
+import { testLoginMode } from "@/lib/test-mode";
 
 const optionalText = (max: number) =>
   z
@@ -17,11 +18,17 @@ const optionalText = (max: number) =>
 export const signupSchema = z.object({
   name: z.string().trim().min(2, "Enter your full name.").max(80),
   email: z.string().trim().email("Enter a valid email.").max(160),
-  password: z.string().min(8, "Use at least 8 characters.").max(128),
+  // Test login mode accepts short passwords such as "test123".
+  password: testLoginMode
+    ? z.string().min(1, "Enter a password.").max(128)
+    : z.string().min(8, "Use at least 8 characters.").max(128),
 });
 
 export const loginSchema = z.object({
-  email: z.string().trim().email("Enter a valid email."),
+  // Test login mode accepts any non-empty email.
+  email: testLoginMode
+    ? z.string().trim().min(1, "Enter your email.").max(160)
+    : z.string().trim().email("Enter a valid email."),
   password: z.string().min(1, "Enter your password."),
 });
 

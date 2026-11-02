@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import Link from "next/link";
-import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
+import { AlertCircle, Eye, EyeOff, FlaskConical, Loader2 } from "lucide-react";
 import { logIn, oauthSignIn, signUp, type AuthState } from "@/app/actions/auth";
 import { Logo } from "@/components/brand/logo";
 import { MountainScene } from "@/components/brand/mountain";
@@ -11,25 +11,30 @@ import { Field } from "@/components/ui/field";
 
 type Errors = Partial<Record<"name" | "email" | "password", string>>;
 
-function validate(mode: "signup" | "login", data: FormData): Errors {
+function validate(mode: "signup" | "login", data: FormData, testMode: boolean): Errors {
   const errors: Errors = {};
   const name = String(data.get("name") ?? "").trim();
   const email = String(data.get("email") ?? "").trim();
   const password = String(data.get("password") ?? "");
   if (mode === "signup" && name.length < 2) errors.name = "Enter your full name.";
   if (!email) errors.email = "Enter your email.";
-  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Enter a valid email, like you@example.com.";
+  else if ((mode === "signup" || !testMode) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errors.email = "Enter a valid email, like you@example.com.";
+  }
   if (!password) errors.password = "Enter your password.";
-  else if (mode === "signup" && password.length < 8) errors.password = "Use at least 8 characters.";
+  else if (mode === "signup" && !testMode && password.length < 8) errors.password = "Use at least 8 characters.";
   return errors;
 }
 
 export function AuthScreen({
   mode,
   providers,
+  testMode = false,
 }: {
   mode: "signup" | "login";
   providers: { id: string; label: string }[];
+  /** Server-provided TEST_LOGIN_MODE flag. */
+  testMode?: boolean;
 }) {
   const action = mode === "signup" ? signUp : logIn;
   const [state, formAction, pending] = useActionState(action, null as AuthState);
@@ -65,6 +70,16 @@ export function AuthScreen({
               : "Pick up your career profile, roadmap, and consultant."}
           </p>
 
+          {testMode ? (
+            <p role="note" className="mt-5 flex items-start gap-2 rounded-xl border border-warning/40 bg-warning-soft px-3 py-2.5 text-small text-warning-foreground">
+              <FlaskConical className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+              <span>
+                Test mode: any email and password will log you in. Test account:{" "}
+                <span className="font-mono font-medium">test@gmail.com</span> / <span className="font-mono font-medium">test123</span>
+              </span>
+            </p>
+          ) : null}
+
           {providers.length ? (
             <div className="mt-6 space-y-2">
               {providers.map((provider) => (
@@ -87,7 +102,7 @@ export function AuthScreen({
             action={formAction}
             noValidate
             onSubmit={(event) => {
-              const next = validate(mode, new FormData(event.currentTarget));
+              const next = validate(mode, new FormData(event.currentTarget), testMode);
               setErrors(next);
               if (Object.keys(next).length) {
                 event.preventDefault();
@@ -130,7 +145,7 @@ export function AuthScreen({
               id="password"
               label="Password"
               error={errors.password}
-              hint={mode === "signup" ? "At least 8 characters." : undefined}
+              hint={mode === "signup" && !testMode ? "At least 8 characters." : undefined}
             >
               <div className="relative">
                 <input
@@ -141,7 +156,7 @@ export function AuthScreen({
                   className="field pr-12"
                   placeholder="••••••••"
                   aria-invalid={errors.password ? true : undefined}
-                  aria-describedby={errors.password ? "password-error" : mode === "signup" ? "password-hint" : undefined}
+                  aria-describedby={errors.password ? "password-error" : mode === "signup" && !testMode ? "password-hint" : undefined}
                   onChange={() => clear("password")}
                 />
                 <button

@@ -4,7 +4,28 @@ import { scoreAlignment, scorePathFit } from "../lib/career/alignment";
 
 const prisma = new PrismaClient();
 
+/**
+ * Fixed test account for TEST_LOGIN_MODE. Upserted, never deleted, and left
+ * with an empty career profile so it goes through onboarding and a real analysis.
+ */
+async function seedTestUser() {
+  const email = "test@gmail.com";
+  const passwordHash = await bcrypt.hash("test123", 12);
+  const user = await prisma.user.upsert({
+    where: { email },
+    update: { name: "Test User", passwordHash },
+    create: { email, name: "Test User", passwordHash },
+  });
+  await prisma.careerProfile.upsert({
+    where: { userId: user.id },
+    update: {},
+    create: { userId: user.id },
+  });
+}
+
 async function main() {
+  await seedTestUser();
+
   const email = "demo@aaroh.local";
   const passwordHash = await bcrypt.hash("AarohDemo123!", 12);
   const existing = await prisma.user.findUnique({ where: { email } });

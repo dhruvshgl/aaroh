@@ -6,6 +6,7 @@ import LinkedIn from "next-auth/providers/linkedin";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { testLoginMode } from "@/lib/test-mode";
 import { loginSchema } from "@/lib/validation";
 
 /**
@@ -25,6 +26,22 @@ const providers: NextAuthConfig["providers"] = [
       if (!parsed.success) return null;
       const email = parsed.data.email.toLowerCase();
       const user = await prisma.user.findUnique({ where: { email } });
+
+      if (testLoginMode) {
+        // Testing only: any password works, and unknown emails get an account.
+        if (user) return { id: user.id, email: user.email, name: user.name, image: user.image };
+        const created = await prisma.user.create({
+          data: {
+            name: email.split("@")[0] || email,
+            email,
+            passwordHash: await bcrypt.hash(parsed.data.password, 12),
+            // The createUser event does not fire for credentials sign-in.
+            profile: { create: {} },
+          },
+        });
+        return { id: created.id, email: created.email, name: created.name, image: created.image };
+      }
+
       if (!user?.passwordHash) return null;
       const matches = await bcrypt.compare(parsed.data.password, user.passwordHash);
       if (!matches) return null;

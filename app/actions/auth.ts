@@ -5,6 +5,7 @@ import { AuthError } from "next-auth";
 import { unstable_rethrow } from "next/navigation";
 import { signIn, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { testLoginMode } from "@/lib/test-mode";
 import { loginSchema, signupSchema } from "@/lib/validation";
 
 export type AuthState = { error?: string } | null;
@@ -20,24 +21,27 @@ export async function signUp(_: AuthState, formData: FormData): Promise<AuthStat
   }
 
   const email = parsed.data.email.toLowerCase();
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) return { error: "An account with that email already exists. Log in instead." };
+  const existing = await prisma.user.findUnique({ where: { email }, include: { profile: true } });
+  // In test login mode an existing email simply signs in.
+  if (existing && !testLoginMode) return { error: "An account with that email already exists. Log in instead." };
 
-  const passwordHash = await bcrypt.hash(parsed.data.password, 12);
-  await prisma.user.create({
-    data: {
-      name: parsed.data.name,
-      email,
-      passwordHash,
-      profile: { create: {} },
-    },
-  });
+  if (!existing) {
+    const passwordHash = await bcrypt.hash(parsed.data.password, 12);
+    await prisma.user.create({
+      data: {
+        name: parsed.data.name,
+        email,
+        passwordHash,
+        profile: { create: {} },
+      },
+    });
+  }
 
   try {
     await signIn("credentials", {
       email,
       password: parsed.data.password,
-      redirectTo: "/onboarding",
+      redirectTo: existing?.profile?.onboardingComplete ? "/dashboard" : "/onboarding",
     });
   } catch (error) {
     unstable_rethrow(error);
@@ -71,7 +75,9 @@ export async function logIn(_: AuthState, formData: FormData): Promise<AuthState
     });
   } catch (error) {
     unstable_rethrow(error);
-    if (error instanceof AuthError) return { error: "That email and password did not match." };
+    if (error instanceof AuthError) {
+      return { error: testLoginMode ? "Enter an email and a password." : "That email and password did not match." };
+    }
     throw error;
   }
   return null;
