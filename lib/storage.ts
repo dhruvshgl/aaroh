@@ -1,7 +1,17 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 
-const localRoot = path.join(process.cwd(), "storage");
+/**
+ * Where uploaded resume files are kept. The app only needs the extracted text
+ * (stored in Postgres), so the file itself is an archive copy.
+ * Vercel's project folder is read-only, so there it defaults to the writable
+ * (ephemeral) temp directory. Override with STORAGE_DIR.
+ */
+const localRoot = path.resolve(
+  process.env.STORAGE_DIR ||
+    (process.env.VERCEL ? path.join(os.tmpdir(), "aaroh-storage") : path.join(process.cwd(), "storage")),
+);
 
 function localPath(key: string) {
   const destination = path.resolve(localRoot, key);
