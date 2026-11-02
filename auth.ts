@@ -9,6 +9,13 @@ import { prisma } from "@/lib/prisma";
 import { testLoginMode } from "@/lib/test-mode";
 import { loginSchema } from "@/lib/validation";
 
+// A localhost AUTH_URL is never correct on Vercel and sends users to
+// localhost after sign-in. Ignore it there; trustHost uses the request host.
+if (process.env.VERCEL && /localhost|127\.0\.0\.1/.test(process.env.AUTH_URL ?? "")) {
+  delete process.env.AUTH_URL;
+  delete process.env.NEXTAUTH_URL;
+}
+
 /**
  * Credentials authentication in Auth.js requires JWT sessions.
  * Users, profiles, and OAuth accounts still live in PostgreSQL.
