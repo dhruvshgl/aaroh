@@ -57,7 +57,6 @@ export function ChoiceGroup({
                 className="peer sr-only"
                 {...(value !== undefined ? { checked: value === option } : { defaultChecked: defaultValue === option })}
                 onChange={(event) => onChange?.(event.target.value)}
-                aria-invalid={error ? true : undefined}
               />
               <span
                 className={cn(
