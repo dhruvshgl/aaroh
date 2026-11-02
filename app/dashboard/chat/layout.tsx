@@ -1,4 +1,5 @@
 import { ChatShell } from "@/components/chat/chat-ui";
+import { relativeDay } from "@/lib/chat/read";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
 
@@ -14,6 +15,7 @@ export default async function ChatLayout({ children }: { children: React.ReactNo
         id: conversation.id,
         title: conversation.title,
         updatedAt: conversation.updatedAt.toISOString(),
+        when: relativeDay(conversation.updatedAt),
       }))}
     >
       {children}
