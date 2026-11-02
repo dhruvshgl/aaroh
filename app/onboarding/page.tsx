@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
-
-export const dynamic = "force-dynamic";
 import { OnboardingWizard } from "@/components/onboarding/wizard";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
+
+export const dynamic = "force-dynamic";
 
 export default async function OnboardingPage() {
   const user = await requireUser();
@@ -17,7 +17,16 @@ export default async function OnboardingPage() {
 
   return (
     <OnboardingWizard
-      resume={resume ? { id: resume.id, filename: resume.filename, sizeBytes: resume.sizeBytes } : null}
+      resume={
+        resume
+          ? {
+              id: resume.id,
+              filename: resume.filename,
+              sizeBytes: resume.sizeBytes,
+              wordCount: resume.extractedText ? resume.extractedText.split(/\s+/).filter(Boolean).length : null,
+            }
+          : null
+      }
       profile={{
         currentRole: profile?.currentRole ?? null,
         yearsOfExperience: profile?.yearsOfExperience ?? null,

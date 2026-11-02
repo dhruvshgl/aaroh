@@ -1,13 +1,12 @@
 import Link from "next/link";
-import { SkillRow } from "@/components/projects/project-controls";
+import { FolderKanban } from "lucide-react";
+import { ProjectsBoard } from "@/components/projects/project-controls";
+import { buttonVariants } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
-
-const labels = {
-  NOT_STARTED: "Not started",
-  IN_PROGRESS: "In progress",
-  COMPLETED: "Completed",
-};
+import { cn } from "@/lib/utils";
 
 export default async function ProjectsPage() {
   const user = await requireUser();
@@ -28,23 +27,36 @@ export default async function ProjectsPage() {
   });
 
   return (
-    <div>
-      <h1 className="text-4xl">Projects</h1>
-      <p className="mt-2 max-w-2xl text-muted-foreground">Turn the roadmap into evidence you can point to.</p>
-      {projects.length === 0 ? (
-        <p className="mt-6 rounded-3xl border border-dashed border-border p-6 text-sm text-muted-foreground">Your recommended projects will appear here.</p>
-      ) : (
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {projects.map((project) => (
-            <Link key={project.id} href={`/dashboard/projects/${project.id}`} className="rounded-3xl border border-border bg-card p-5">
-              <p className="text-xs tracking-wide text-primary uppercase">{labels[project.status]}</p>
-              <h2 className="mt-2 text-2xl">{project.title}</h2>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">{project.whyItMatters}</p>
-              <SkillRow skills={project.skills} />
-            </Link>
-          ))}
-        </div>
-      )}
+    <div className="mx-auto max-w-6xl">
+      <PageHeader
+        eyebrow="Projects"
+        title="Turn the plan into proof"
+        description="Each project targets a gap in your report. Finish one and it becomes evidence you can point to."
+      />
+      <div className="mt-6">
+        {projects.length === 0 ? (
+          <EmptyState
+            icon={FolderKanban}
+            title="No projects yet"
+            description="Recommended projects arrive with your roadmap after the analysis."
+            action={
+              <Link href="/dashboard/roadmap" className={cn(buttonVariants({ size: "pill" }))}>
+                View roadmap
+              </Link>
+            }
+          />
+        ) : (
+          <ProjectsBoard
+            projects={projects.map((project) => ({
+              id: project.id,
+              title: project.title,
+              whyItMatters: project.whyItMatters,
+              status: project.status,
+              skills: project.skills,
+            }))}
+          />
+        )}
+      </div>
     </div>
   );
 }

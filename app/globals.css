@@ -12,6 +12,60 @@
   --font-serif: var(--font-fraunces);
   --font-heading: var(--font-fraunces);
   --color-gold: var(--gold);
+  --color-sand: var(--sand);
+  --color-sand-soft: var(--sand-soft);
+  --color-forest: var(--forest);
+  --color-night: var(--night);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-info-foreground: var(--info-foreground);
+  --color-sev-low: var(--info-foreground);
+  --color-sev-low-soft: var(--info-soft);
+  --color-sev-medium: var(--warning-foreground);
+  --color-sev-medium-soft: var(--warning-soft);
+  --color-sev-high: var(--danger-foreground);
+  --color-sev-high-soft: var(--danger-soft);
+  --color-depth-listed: var(--depth-listed);
+  --color-depth-listed-soft: var(--depth-listed-soft);
+  --color-depth-practiced: var(--depth-practiced);
+  --color-depth-practiced-soft: var(--depth-practiced-soft);
+  --color-depth-production: var(--depth-production);
+  --color-depth-production-soft: var(--depth-production-soft);
+
+  /* Type scale */
+  --text-display: 3.5rem;
+  --text-display--line-height: 1.04;
+  --text-display--letter-spacing: -0.02em;
+  --text-h1: 2.25rem;
+  --text-h1--line-height: 1.12;
+  --text-h1--letter-spacing: -0.015em;
+  --text-h2: 1.5rem;
+  --text-h2--line-height: 1.2;
+  --text-h3: 1.125rem;
+  --text-h3--line-height: 1.35;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.65;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.5;
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.4;
+
+  /* Elevation */
+  --shadow-soft: 0 1px 2px oklch(0.25 0.02 65 / 0.04), 0 2px 8px oklch(0.25 0.02 65 / 0.04);
+  --shadow-raised: 0 2px 4px oklch(0.25 0.02 65 / 0.05), 0 12px 32px oklch(0.25 0.02 65 / 0.09);
+
+  /* Motion */
+  --animate-fade-up: fade-up 220ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-fade-in: fade-in 180ms ease-out both;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,6 +102,52 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  /* Standard radii: controls (xl), cards (card), hero panels (panel) */
+  --radius-card: 1.25rem;
+  --radius-panel: 1.75rem;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ring-fill {
+  from {
+    stroke-dashoffset: var(--ring-circ);
+  }
+}
+
+@keyframes bar-fill {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes typing-dot {
+  0%, 80%, 100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
 }
 
 :root {
@@ -70,6 +170,28 @@
   --input: oklch(0.9 0.014 88);
   --ring: oklch(0.33 0.046 158);
   --gold: oklch(0.74 0.08 82);
+  --sand: oklch(0.83 0.045 80);
+  --sand-soft: oklch(0.88 0.055 85);
+  --forest: oklch(0.27 0.035 160);
+  --night: oklch(0.22 0.03 160);
+  --success: oklch(0.52 0.09 155);
+  --success-soft: oklch(0.94 0.035 155);
+  --success-foreground: oklch(0.38 0.07 155);
+  --warning: oklch(0.72 0.12 75);
+  --warning-soft: oklch(0.95 0.04 85);
+  --warning-foreground: oklch(0.45 0.09 65);
+  --danger: oklch(0.55 0.16 28);
+  --danger-soft: oklch(0.95 0.03 30);
+  --danger-foreground: oklch(0.46 0.14 28);
+  --info: oklch(0.55 0.05 200);
+  --info-soft: oklch(0.95 0.018 200);
+  --info-foreground: oklch(0.4 0.05 210);
+  --depth-listed: oklch(0.45 0.02 70);
+  --depth-listed-soft: oklch(0.94 0.01 85);
+  --depth-practiced: oklch(0.42 0.07 100);
+  --depth-practiced-soft: oklch(0.94 0.04 95);
+  --depth-production: oklch(0.36 0.06 158);
+  --depth-production-soft: oklch(0.93 0.035 158);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -82,8 +204,8 @@
   --sidebar-primary-foreground: oklch(0.975 0.01 95);
   --sidebar-accent: oklch(0.94 0.016 95);
   --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-border: oklch(0.9 0.014 88);
+  --sidebar-ring: oklch(0.33 0.046 158);
 }
 
 .dark {
@@ -132,6 +254,40 @@
   }
   h1, h2, .font-serif {
     font-family: var(--font-fraunces), Georgia, serif;
+    font-weight: 450;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  [id] {
+    scroll-margin-top: 5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Soft card surface used across the app */
+@utility surface {
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: var(--shadow-soft);
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
 
@@ -141,10 +297,18 @@
   width: 100%;
   border-radius: 0.9rem;
   border: 1px solid var(--border);
-  background: white;
+  background: var(--card);
+  color: var(--foreground);
+  transition: border-color 150ms, box-shadow 150ms;
   padding-inline: 0.85rem;
   font-size: 0.95rem;
   outline: none;
+}
+.field::placeholder {
+  color: color-mix(in oklch, var(--muted-foreground) 80%, transparent);
+}
+.field[aria-invalid="true"] {
+  border-color: var(--danger);
 }
 .field:focus {
   border-color: var(--primary);
@@ -154,4 +318,14 @@ textarea.field {
   height: auto;
   min-height: 7.5rem;
   padding-block: 0.75rem;
+}
+.field:focus-visible {
+  outline: none;
+}
+select.field {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%236b6256' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.25rem;
 }

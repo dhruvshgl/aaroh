@@ -1,11 +1,17 @@
 import { redirect } from "next/navigation";
+import { AppShell } from "@/components/shell/app-shell";
+import { roadmapProgress } from "@/lib/progress";
+import { requireUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
-import { AppShell } from "@/components/shell/app-shell";
-import { requireUser } from "@/lib/session";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
   if (!user.profile?.onboardingComplete) redirect("/onboarding");
-  return <AppShell name={user.name || "there"}>{children}</AppShell>;
+  const progress = await roadmapProgress(user.id);
+  return (
+    <AppShell name={user.name || "there"} email={user.email ?? ""} progress={progress}>
+      {children}
+    </AppShell>
+  );
 }

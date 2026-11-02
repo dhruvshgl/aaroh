@@ -1,13 +1,28 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
+import { AlertCircle, Eye, EyeOff, Loader2 } from "lucide-react";
 import { logIn, oauthSignIn, signUp, type AuthState } from "@/app/actions/auth";
 import { Logo } from "@/components/brand/logo";
 import { MountainScene } from "@/components/brand/mountain";
 import { Button } from "@/components/ui/button";
+import { Field } from "@/components/ui/field";
 
-const steps = ["Account", "Background", "Goals", "Resume", "Details"];
+type Errors = Partial<Record<"name" | "email" | "password", string>>;
+
+function validate(mode: "signup" | "login", data: FormData): Errors {
+  const errors: Errors = {};
+  const name = String(data.get("name") ?? "").trim();
+  const email = String(data.get("email") ?? "").trim();
+  const password = String(data.get("password") ?? "");
+  if (mode === "signup" && name.length < 2) errors.name = "Enter your full name.";
+  if (!email) errors.email = "Enter your email.";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = "Enter a valid email, like you@example.com.";
+  if (!password) errors.password = "Enter your password.";
+  else if (mode === "signup" && password.length < 8) errors.password = "Use at least 8 characters.";
+  return errors;
+}
 
 export function AuthScreen({
   mode,
@@ -18,33 +33,35 @@ export function AuthScreen({
 }) {
   const action = mode === "signup" ? signUp : logIn;
   const [state, formAction, pending] = useActionState(action, null as AuthState);
+  const [errors, setErrors] = useState<Errors>({});
+  const [showPassword, setShowPassword] = useState(false);
+
+  function clear(field: keyof Errors) {
+    if (errors[field]) setErrors((current) => ({ ...current, [field]: undefined }));
+  }
 
   return (
     <div className="grid min-h-dvh lg:grid-cols-[0.9fr_1.1fr]">
       <aside className="relative hidden lg:block">
-        <MountainScene />
+        <MountainScene className="h-full rounded-none" />
         <div className="absolute top-8 left-8">
           <Logo light />
         </div>
       </aside>
-      <main className="flex items-center justify-center px-4 py-10">
-        <div className="w-full max-w-md">
-          <div className="mb-6 lg:hidden">
-            <Logo />
-          </div>
-          {mode === "signup" ? (
-            <ol className="mb-6 flex gap-2 overflow-x-auto text-xs text-muted-foreground">
-              {steps.map((step, index) => (
-                <li key={step} className={index === 0 ? "font-medium text-primary" : ""}>
-                  {index + 1}. {step}
-                </li>
-              ))}
-            </ol>
-          ) : null}
-          <h1 className="text-4xl">{mode === "signup" ? "Welcome to Aaroh" : "Welcome back"}</h1>
+
+      <div className="relative h-28 overflow-hidden lg:hidden">
+        <MountainScene caption={null} className="min-h-0 rounded-none" />
+        <div className="absolute top-4 left-4">
+          <Logo light />
+        </div>
+      </div>
+
+      <main className="flex items-start justify-center px-4 py-8 sm:items-center sm:py-10">
+        <div className="w-full max-w-md animate-fade-up">
+          <h1 className="text-h1">{mode === "signup" ? "Create your account" : "Welcome back"}</h1>
           <p className="mt-2 text-muted-foreground">
             {mode === "signup"
-              ? "Create your account and tell Aaroh where you are headed."
+              ? "Free while in early access. Next, you'll tell Aaroh about your background and goal."
               : "Pick up your career profile, roadmap, and consultant."}
           </p>
 
@@ -53,55 +70,117 @@ export function AuthScreen({
               {providers.map((provider) => (
                 <form key={provider.id} action={oauthSignIn}>
                   <input type="hidden" name="provider" value={provider.id} />
-                  <Button type="submit" variant="outline" className="h-11 w-full rounded-full bg-card">
+                  <Button type="submit" variant="outline" size="pill" className="w-full bg-card">
                     {provider.label}
                   </Button>
                 </form>
               ))}
-              <p className="py-1 text-center text-xs tracking-widest text-muted-foreground uppercase">or</p>
+              <div className="flex items-center gap-3 py-2 text-caption tracking-widest text-muted-foreground uppercase">
+                <span className="h-px flex-1 bg-border" />
+                or
+                <span className="h-px flex-1 bg-border" />
+              </div>
             </div>
           ) : null}
 
-          <form action={formAction} className="mt-4 space-y-3">
+          <form
+            action={formAction}
+            noValidate
+            onSubmit={(event) => {
+              const next = validate(mode, new FormData(event.currentTarget));
+              setErrors(next);
+              if (Object.keys(next).length) {
+                event.preventDefault();
+                const first = Object.keys(next)[0];
+                event.currentTarget.querySelector<HTMLInputElement>(`[name="${first}"]`)?.focus();
+              }
+            }}
+            className="mt-6 space-y-4"
+          >
             {mode === "signup" ? (
-              <label className="block text-sm">
-                Full name
-                <input name="name" required autoComplete="name" className="field mt-1" placeholder="Your name" />
-              </label>
+              <Field id="name" label="Full name" error={errors.name}>
+                <input
+                  id="name"
+                  name="name"
+                  autoComplete="name"
+                  autoFocus
+                  className="field"
+                  placeholder="Your name"
+                  aria-invalid={errors.name ? true : undefined}
+                  aria-describedby={errors.name ? "name-error" : undefined}
+                  onChange={() => clear("name")}
+                />
+              </Field>
             ) : null}
-            <label className="block text-sm">
-              Email
-              <input name="email" type="email" required autoComplete="email" className="field mt-1" placeholder="you@example.com" />
-            </label>
-            <label className="block text-sm">
-              Password
+            <Field id="email" label="Email" error={errors.email}>
               <input
-                name="password"
-                type="password"
-                required
-                minLength={mode === "signup" ? 8 : 1}
-                autoComplete={mode === "signup" ? "new-password" : "current-password"}
-                className="field mt-1"
-                placeholder="••••••••"
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                autoFocus={mode === "login"}
+                className="field"
+                placeholder="you@example.com"
+                aria-invalid={errors.email ? true : undefined}
+                aria-describedby={errors.email ? "email-error" : undefined}
+                onChange={() => clear("email")}
               />
-            </label>
-            {state?.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
-            <Button type="submit" disabled={pending} className="h-12 w-full rounded-full text-base">
-              {pending ? "Please wait…" : mode === "signup" ? "Create Account" : "Log in"}
+            </Field>
+            <Field
+              id="password"
+              label="Password"
+              error={errors.password}
+              hint={mode === "signup" ? "At least 8 characters." : undefined}
+            >
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                  className="field pr-12"
+                  placeholder="••••••••"
+                  aria-invalid={errors.password ? true : undefined}
+                  aria-describedby={errors.password ? "password-error" : mode === "signup" ? "password-hint" : undefined}
+                  onChange={() => clear("password")}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((value) => !value)}
+                  className="absolute inset-y-0 right-0 grid w-11 place-items-center rounded-r-[0.9rem] text-muted-foreground hover:text-foreground"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-pressed={showPassword}
+                >
+                  {showPassword ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
+                </button>
+              </div>
+            </Field>
+
+            {state?.error ? (
+              <p role="alert" className="flex items-start gap-2 rounded-xl bg-danger-soft px-3 py-2.5 text-small text-danger-foreground">
+                <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                {state.error}
+              </p>
+            ) : null}
+
+            <Button type="submit" disabled={pending} size="pill" className="h-12 w-full text-base">
+              {pending ? <Loader2 className="animate-spin" aria-hidden="true" /> : null}
+              {pending ? (mode === "signup" ? "Creating your account…" : "Logging in…") : mode === "signup" ? "Create account" : "Log in"}
             </Button>
           </form>
-          <p className="mt-4 text-center text-sm text-muted-foreground">
+
+          <p className="mt-6 text-center text-small text-muted-foreground">
             {mode === "signup" ? (
               <>
                 Already have an account?{" "}
-                <Link href="/login" className="text-primary">
+                <Link href="/login" className="font-medium text-primary underline-offset-4 hover:underline">
                   Log in
                 </Link>
               </>
             ) : (
               <>
                 New to Aaroh?{" "}
-                <Link href="/signup" className="text-primary">
+                <Link href="/signup" className="font-medium text-primary underline-offset-4 hover:underline">
                   Create an account
                 </Link>
               </>

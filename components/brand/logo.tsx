@@ -13,11 +13,11 @@ export function Logo({
   href?: string;
 }) {
   return (
-    <Link href={href} className={cn("flex items-center gap-2.5", className)}>
+    <Link href={href} aria-label="Aaroh home" className={cn("flex items-center gap-2.5 rounded-xl", className)}>
       <span className={cn("grid size-9 place-items-center rounded-xl", light ? "bg-white/10" : "bg-primary")}>
         <svg viewBox="0 0 32 32" className="size-5" aria-hidden="true">
-          <path d="M4 24 L16 6 L28 24 Z" fill={light ? "#f6f1e6" : "#f6f1e6"} />
-          <path d="M10 24 L16 14 L22 24 Z" fill={light ? "#1b3a2f" : "#c4a574"} />
+          <path d="M4 24 L16 6 L28 24 Z" fill="var(--primary-foreground)" />
+          <path d="M10 24 L16 14 L22 24 Z" fill={light ? "var(--forest)" : "var(--gold)"} />
         </svg>
       </span>
       <span className="leading-tight">
