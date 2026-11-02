@@ -1,6 +1,13 @@
 import Link from "next/link";
+import { Compass } from "lucide-react";
+import { PathsExplorer } from "@/components/paths/paths-explorer";
+import { buttonVariants } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { PageHeader } from "@/components/ui/page-header";
+import { readStringList } from "@/lib/career/read";
 import { prisma } from "@/lib/prisma";
 import { requireUser } from "@/lib/session";
+import { cn } from "@/lib/utils";
 
 export default async function AlternativesPage() {
   const user = await requireUser();
@@ -11,30 +18,42 @@ export default async function AlternativesPage() {
   });
   const paths = report?.paths ?? [];
   return (
-    <div>
-      <h1 className="text-4xl">Other paths worth exploring</h1>
-      <p className="mt-2 max-w-2xl text-muted-foreground">
-        Based on your experience, interests, and transferable skills, these are adjacent directions. They are possibilities, not a verdict.
-      </p>
-      {paths.length === 0 ? (
-        <p className="mt-6 rounded-3xl border border-dashed border-border p-6 text-sm text-muted-foreground">Alternative paths appear after your career analysis.</p>
-      ) : (
-        <div className="mt-6 grid gap-4">
-          {paths.map((path) => (
-            <Link key={path.id} href={`/dashboard/alternatives/${path.id}`} className="rounded-3xl border border-border bg-card p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <h2 className="text-2xl">{path.roleName}</h2>
-                  <p className="mt-1 text-sm text-primary">{path.fitLabel}</p>
-                </div>
-                <p className="font-serif text-4xl">{path.fitScore}%</p>
-              </div>
-              <p className="mt-3 text-sm leading-6 text-muted-foreground">{path.summary}</p>
-            </Link>
-          ))}
-        </div>
-      )}
-      <p className="mt-8 font-serif text-xl italic text-primary">Sometimes a small shift opens a much bigger future.</p>
+    <div className="mx-auto max-w-6xl">
+      <PageHeader
+        eyebrow="Paths"
+        title="Other paths worth exploring"
+        description="Adjacent directions your experience, interests and transferable skills could support. Each one is a possibility to test, not a verdict or a recommendation to switch."
+      />
+      <div className="mt-6">
+        {paths.length === 0 ? (
+          <EmptyState
+            icon={Compass}
+            title="No paths to explore yet"
+            description="Alternative paths appear after your career analysis."
+            action={
+              <Link href="/dashboard" className={cn(buttonVariants({ size: "pill" }))}>
+                Go to dashboard
+              </Link>
+            }
+          />
+        ) : (
+          <PathsExplorer
+            paths={paths.map((path) => ({
+              id: path.id,
+              roleName: path.roleName,
+              summary: path.summary,
+              whyIdentified: path.whyIdentified,
+              fitScore: path.fitScore,
+              fitLabel: path.fitLabel,
+              difficulty: path.difficulty,
+              nextStep: path.nextStep,
+              transferableSkills: readStringList(path.transferableSkills),
+              missingSkills: readStringList(path.missingSkills),
+            }))}
+          />
+        )}
+      </div>
+      <p className="mt-10 font-serif text-h3 text-primary">Sometimes a small shift opens a much bigger future.</p>
     </div>
   );
 }
