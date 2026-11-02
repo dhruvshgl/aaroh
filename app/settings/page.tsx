@@ -9,11 +9,17 @@ export default async function SettingsPage() {
   const resumes = await prisma.resume.findMany({
     where: { userId: user.id },
     orderBy: { createdAt: "desc" },
-    select: { id: true, filename: true },
+    select: { id: true, filename: true, createdAt: true, sizeBytes: true },
   });
   return (
     <SettingsForm
-      resumes={resumes}
+      email={user.email ?? ""}
+      resumes={resumes.map((resume) => ({
+        id: resume.id,
+        filename: resume.filename,
+        sizeBytes: resume.sizeBytes,
+        uploadedAt: resume.createdAt.toLocaleDateString("en", { day: "numeric", month: "short", year: "numeric" }),
+      }))}
       values={{
         currentRole: profile?.currentRole ?? "",
         yearsOfExperience: profile?.yearsOfExperience ?? "2–3 years",
